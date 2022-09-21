@@ -62,10 +62,7 @@ app.use(session({secret: 'changeme:P', resave: true, saveUninitialized: true, st
 
 new DatabaseFactory().connect().then(async db => {
     DependencyInjection.register('database', db)
-    const googleApi = new GoogleApiService()
-    //await googleApi.connect()
-    DependencyInjection.register('google-api', googleApi)
-
+    DependencyInjection.register('google-api', await new GoogleApiService().connect())
     DependencyInjection.register('wcl/v2', new WclApi()).login(config.wcl.username, config.wcl.password)
 
     const userService = DependencyInjection.register('user-service', new UserService())
@@ -77,13 +74,8 @@ new DatabaseFactory().connect().then(async db => {
     await discord.commands().publish()
 
     discord.enableMessageObserver()
-    discord.observeUserMessages(DISCORD_RAID_HELPER_USER_ID).subscribe(e => {
-        console.log(`message: type=${e.type}`)
-    })
-
-    discord.observeRaidSignUps('*').subscribe(event => {
-        console.log(event)
-    })
+    discord.observeUserMessages(DISCORD_RAID_HELPER_USER_ID).subscribe(e => {})
+    discord.observeRaidSignUps('*').subscribe(event => {})
 
     DependencyInjection.register('auth', new AuthEndpoint(app, db, userService, discord))
     DependencyInjection.register('server', new Server(app)).configure().start()

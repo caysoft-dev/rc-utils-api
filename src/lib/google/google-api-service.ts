@@ -11,11 +11,16 @@ export class GoogleApiService {
 
     constructor() {}
 
-    async connect() {
-        this.authClient = await new auth.GoogleAuth({
-            keyFilename: '/home/patrick/Development/rc-utils-api/google-keyfile.json',
-            scopes: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
-        }).getClient();
+    async connect(): Promise<GoogleApiService> {
+        try {
+            this.authClient = await new auth.GoogleAuth({
+                keyFilename: '/home/patrick/Development/rc-utils-api/google-keyfile.json',
+                scopes: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+            }).getClient();
+        } catch (e) {
+            console.warn(e)
+            return this
+        }
 
         this.api = await new sheets_v4.Sheets({
             auth: this.authClient
@@ -25,7 +30,7 @@ export class GoogleApiService {
             auth: this.authClient
         })
 
-        console.log(this.api)
+        return this;
     }
 
     async getSpreadsheet(id: string): Promise<GoogleSpreadsheet> {
